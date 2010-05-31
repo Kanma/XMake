@@ -125,8 +125,6 @@ function(xmake_add_link_targets PROJECT TARGET1)
     set(TARGETS ${XMAKE_${PROJECT}_LINK_TARGETS})
     list(APPEND TARGETS ${TARGET1})
 
-    message(STATUS "${ARGN}")
-
     foreach(CURRENT_TARGET ${ARGN})
         list(APPEND TARGETS ${CURRENT_TARGET})
     endforeach()
