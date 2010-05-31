@@ -67,7 +67,15 @@ function(xmake_add_include_paths PROJECT PATH1)
 endfunction()
 
 
-# Add some link paths to a XMake project
+# Add the include paths of a XMake project to the scope
+function(xmake_include_directories PROJECT)
+    foreach (CURRENT_PATH ${XMAKE_${PROJECT}_INCLUDE_PATHS})
+        include_directories("${CURRENT_PATH}")
+    endforeach()
+endfunction()
+
+
+# Add some libraries paths to a XMake project
 function(xmake_add_link_paths PROJECT PATH1)
 
     set(PATHS ${XMAKE_${PROJECT}_LINK_PATHS})
@@ -78,6 +86,14 @@ function(xmake_add_link_paths PROJECT PATH1)
     endforeach()
 
     xmake_set(XMAKE_${PROJECT}_LINK_PATHS "${PATHS}")
+endfunction()
+
+
+# Add the libraries paths of a XMake project to the scope
+function(xmake_link_directories PROJECT)
+    foreach (CURRENT_PATH ${XMAKE_${PROJECT}_LINK_PATHS})
+        link_directories("${CURRENT_PATH}")
+    endforeach()
 endfunction()
 
 
