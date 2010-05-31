@@ -20,6 +20,7 @@ function(xmake_init_static PROJECT)
     xmake_set(XMAKE_${PROJECT}_LINK_PATHS "")
     xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
     xmake_set(XMAKE_${PROJECT}_LINK_FLAGS "")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "")
     xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY YES)
     xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY NO)
     xmake_set(XMAKE_${PROJECT}_FRAMEWORK NO)
@@ -32,6 +33,7 @@ function(xmake_init_dynamic PROJECT)
     xmake_set(XMAKE_${PROJECT}_LINK_PATHS "")
     xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
     xmake_set(XMAKE_${PROJECT}_LINK_FLAGS "")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "")
     xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY NO)
     xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY YES)
     xmake_set(XMAKE_${PROJECT}_FRAMEWORK NO)
@@ -44,6 +46,7 @@ function(xmake_init_framework PROJECT)
     xmake_set(XMAKE_${PROJECT}_LINK_PATHS "")
     xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
     xmake_set(XMAKE_${PROJECT}_LINK_FLAGS "")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "")
     xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY NO)
     xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY NO)
     xmake_set(XMAKE_${PROJECT}_FRAMEWORK YES)
@@ -116,6 +119,30 @@ function(xmake_add_link_flags PROJECT FLAGS1)
 endfunction()
 
 
+# Add some link targets to a XMake project
+function(xmake_add_link_targets PROJECT TARGET1)
+
+    set(TARGETS ${XMAKE_${PROJECT}_LINK_TARGETS})
+    list(APPEND TARGETS ${TARGET1})
+
+    message(STATUS "${ARGN}")
+
+    foreach(CURRENT_TARGET ${ARGN})
+        list(APPEND TARGETS ${CURRENT_TARGET})
+    endforeach()
+
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${TARGETS}")
+endfunction()
+
+
+# Link the 'link targets' of a XMake project to a target
+function(xmake_target_link_libraries TARGET PROJECT)
+    foreach (CURRENT_LIBRARY ${XMAKE_${PROJECT}_LINK_TARGETS})
+        target_link_libraries(${TARGET} "${CURRENT_LIBRARY}")
+    endforeach()
+endfunction()
+
+
 # Display all the XMake settings of a project
 function(xmake_display PROJECT)
     
@@ -136,6 +163,10 @@ function(xmake_display PROJECT)
     
     if (XMAKE_${PROJECT}_LINK_FLAGS)
         set(TEXT "${TEXT}  Linking flags:       ${XMAKE_${PROJECT}_LINK_FLAGS}\n")
+    endif()
+
+    if (XMAKE_${PROJECT}_LINK_TARGETS)
+        set(TEXT "${TEXT}  Link targets:        ${XMAKE_${PROJECT}_LINK_TARGETS}\n")
     endif()
 
     if (XMAKE_${PROJECT}_STATIC_LIBRARY)

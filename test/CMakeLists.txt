@@ -26,6 +26,7 @@ xmake_init_dynamic(PROJECT2)
 
 xmake_add_include_paths(PROJECT2 "project2/include")
 xmake_add_link_paths(PROJECT2 "project2/lib")
+xmake_add_link_targets(PROJECT2 Project2 Project1)
 
 xmake_add_compile_definitions(PROJECT2 "-DDOUBLE_PRECISION=1" "-DTHREADING=0")
 
