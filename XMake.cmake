@@ -153,6 +153,7 @@ endfunction()
 function(xmake_target_link_libraries TARGET PROJECT)
     foreach (CURRENT_LIBRARY ${XMAKE_${PROJECT}_LINK_TARGETS})
         target_link_libraries(${TARGET} "${CURRENT_LIBRARY}")
+        add_dependencies(${TARGET} "${CURRENT_LIBRARY}")
     endforeach()
 endfunction()
 
