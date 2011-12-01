@@ -42,3 +42,8 @@ xmake_add_link_paths(PROJECT3 "project3/lib")
 xmake_add_link_flags(PROJECT3 "-Fproject3/bin" "-framework Project3")
 
 xmake_display(PROJECT3)
+
+
+###############################################
+
+xmake_add_subdirectory("${XMAKE_TEST_SOURCE_DIR}/subdirectory")

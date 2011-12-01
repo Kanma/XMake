@@ -158,6 +158,15 @@ function(xmake_target_link_libraries TARGET PROJECT)
 endfunction()
 
 
+# Add a subdirectory to the build, but not if there is no CMakeLists.txt file
+# in it (which might happen when using several cascaded submodules with XMake)
+function(xmake_add_subdirectory ABSOLUTE_SOURCE_DIR)
+    if (EXISTS "${ABSOLUTE_SOURCE_DIR}/CMakeLists.txt")
+        add_subdirectory("${ABSOLUTE_SOURCE_DIR}")
+    endif()
+endfunction()
+
+
 # Display all the XMake settings of a project
 function(xmake_display PROJECT)
     
@@ -203,4 +212,4 @@ function(xmake_display PROJECT)
 endfunction()
 
 
-xmake_set(XMAKE_VERSION "1.0")
+xmake_set(XMAKE_VERSION "1.1")
