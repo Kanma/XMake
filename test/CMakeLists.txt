@@ -4,46 +4,33 @@ PROJECT(XMAKE_TEST)
 set(CMAKE_MODULE_PATH "${XMAKE_TEST_SOURCE_DIR}/..")
 include(XMake)
 
-message(STATUS "XMAKE_VERSION: ${XMAKE_VERSION}")
+message(STATUS "XMAKE_VERSION:          ${XMAKE_VERSION}")
+message(STATUS "XMAKE_BINARY_DIR:       ${XMAKE_BINARY_DIR}")
+message(STATUS "XMAKE_DEPENDENCIES_DIR: ${XMAKE_DEPENDENCIES_DIR}")
 
 
-###############################################
-
-xmake_init_static(PROJECT1)
-
-xmake_add_include_paths(PROJECT1 "project1/include")
-xmake_add_include_paths(PROJECT1 "project1/include/win32" "project1/include/posix")
-
-xmake_add_link_paths(PROJECT1 "project1/lib")
-xmake_add_link_paths(PROJECT1 "project1/lib/win32" "project1/lib/posix")
-
-xmake_display(PROJECT1)
-
-
-###############################################
-
-xmake_init_dynamic(PROJECT2)
-
-xmake_add_include_paths(PROJECT2 "project2/include")
-xmake_add_link_paths(PROJECT2 "project2/lib")
-xmake_add_link_targets(PROJECT2 Project2 Project1)
-
-xmake_add_compile_definitions(PROJECT2 "-DDOUBLE_PRECISION=1" "-DTHREADING=0")
-
-xmake_display(PROJECT2)
+xmake_add_subdirectory(static_lib1)
+xmake_add_subdirectory(static_lib2)
+xmake_add_subdirectory(dynamic_lib1)
+xmake_add_subdirectory(dynamic_lib2)
+xmake_add_subdirectory(dynamic_lib3)
+xmake_add_subdirectory(dynamic_lib4)
+xmake_add_subdirectory(framework1)
+xmake_add_subdirectory(executable1)
+xmake_add_subdirectory(executable2)
+xmake_add_subdirectory(executable3)
+xmake_add_subdirectory(executable4)
+xmake_add_subdirectory(empty)
 
 
-###############################################
-
-xmake_init_framework(PROJECT3)
-
-xmake_add_include_paths(PROJECT3 "project3/include")
-xmake_add_link_paths(PROJECT3 "project3/lib")
-xmake_add_link_flags(PROJECT3 "-Fproject3/bin" "-framework Project3")
-
-xmake_display(PROJECT3)
-
-
-###############################################
-
-xmake_add_subdirectory("${XMAKE_TEST_SOURCE_DIR}/subdirectory")
+xmake_display(STATIC_LIB1)
+xmake_display(STATIC_LIB2)
+xmake_display(DYNAMIC_LIB1)
+xmake_display(DYNAMIC_LIB2)
+xmake_display(DYNAMIC_LIB3)
+xmake_display(DYNAMIC_LIB4)
+xmake_display(FRAMEWORK1)
+xmake_display(EXECUTABLE1)
+xmake_display(EXECUTABLE2)
+xmake_display(EXECUTABLE3)
+xmake_display(EXECUTABLE4)
