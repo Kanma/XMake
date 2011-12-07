@@ -64,7 +64,7 @@ endfunction()
 function(xmake_add_to_property PROJECT PROPERTY_NAME VALUE)
     get_target_property(OLD_VALUE ${XMAKE_${PROJECT}_TARGET} ${PROPERTY_NAME})
 
-    if (OLD_VALUE)
+    if (NOT OLD_VALUE STREQUAL "OLD_VALUE-NOTFOUND")
         set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${OLD_VALUE};${VALUE}")
     else()
         set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${VALUE}")
@@ -374,7 +374,7 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
         if (XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS)
             get_target_property(LINK_FLAGS ${XMAKE_${PROJECT}_TARGET} LINK_FLAGS)
             
-            if (LINK_FLAGS)
+            if (NOT LINK_FLAGS STREQUAL "LINK_FLAGS-NOTFOUND")
                 set(LINK_FLAGS "${LINK_FLAGS} ${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
             else()
                 set(LINK_FLAGS "${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
@@ -385,9 +385,7 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
         endif()
 
         if (XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS)
-            get_target_property(COMPILE_DEFINITIONS ${XMAKE_${PROJECT}_TARGET} COMPILE_DEFINITIONS)
-            list(APPEND COMPILE_DEFINITIONS ${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS})
-            set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES COMPILE_DEFINITIONS "${COMPILE_DEFINITIONS}")
+            xmake_add_to_property(${PROJECT} COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
         endif()
 
         if (XMAKE_${PROJECT_TO_LINK}_FRAMEWORK)
@@ -417,7 +415,7 @@ endfunction()
 # Global XMake settings
 #-----------------------------------------------------------------------------------------
 
-xmake_set(XMAKE_VERSION "2.0")
+xmake_set(XMAKE_VERSION "2.0.1")
 
 if (NOT DEFINED XMAKE_BINARY_DIR)
     xmake_set(XMAKE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
