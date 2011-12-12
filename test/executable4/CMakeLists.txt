@@ -8,7 +8,7 @@ xmake_import_search_paths(FRAMEWORK1)
 set(SRCS main.cpp)
 
 xmake_create_executable(EXECUTABLE4 executable4 ${SRCS})
-xmake_add_to_property(EXECUTABLE4 COMPILE_DEFINITIONS "EXECUTABLE4_INTERNAL")
+xmake_add_to_list_property(EXECUTABLE4 COMPILE_DEFINITIONS "EXECUTABLE4_INTERNAL")
 
 # Link used libraries
 xmake_project_link(EXECUTABLE4 FRAMEWORK1)

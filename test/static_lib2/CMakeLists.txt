@@ -8,7 +8,7 @@ xmake_import_search_paths(STATIC_LIB1)
 set(SRCS static_lib2.cpp)
 
 xmake_create_static_library(STATIC_LIB2 static_lib2 ${SRCS})
-xmake_add_to_property(STATIC_LIB2 COMPILE_DEFINITIONS "STATIC_LIB2_INTERNAL")
+xmake_add_to_list_property(STATIC_LIB2 COMPILE_DEFINITIONS "STATIC_LIB2_INTERNAL")
 
 # Link used libraries
 xmake_project_link(STATIC_LIB2 STATIC_LIB1)

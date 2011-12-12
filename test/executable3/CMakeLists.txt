@@ -9,7 +9,7 @@ xmake_import_search_paths(DYNAMIC_LIB3)
 set(SRCS main.cpp)
 
 xmake_create_executable(EXECUTABLE3 executable3 ${SRCS})
-xmake_add_to_property(EXECUTABLE3 COMPILE_DEFINITIONS "EXECUTABLE3_INTERNAL")
+xmake_add_to_list_property(EXECUTABLE3 COMPILE_DEFINITIONS "EXECUTABLE3_INTERNAL")
 
 # Link used libraries
 xmake_project_link(EXECUTABLE3 DYNAMIC_LIB4 DYNAMIC_LIB3)

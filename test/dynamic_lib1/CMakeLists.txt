@@ -8,7 +8,7 @@ xmake_import_search_paths(STATIC_LIB1)
 set(SRCS dynamic_lib1.cpp)
 
 xmake_create_dynamic_library(DYNAMIC_LIB1 dynamic_lib1 1.0.0 1.0.0 ${SRCS})
-xmake_add_to_property(DYNAMIC_LIB1 COMPILE_DEFINITIONS "DYNAMIC_LIB1_INTERNAL")
+xmake_add_to_list_property(DYNAMIC_LIB1 COMPILE_DEFINITIONS "DYNAMIC_LIB1_INTERNAL")
 
 # Link used libraries
 xmake_project_link(DYNAMIC_LIB1 STATIC_LIB1)

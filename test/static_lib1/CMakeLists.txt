@@ -6,7 +6,7 @@ PROJECT(XMAKE_TEST_STATIC_LIB1)
 set(SRCS static_lib1.cpp)
 
 xmake_create_static_library(STATIC_LIB1 static_lib1 ${SRCS})
-xmake_add_to_property(STATIC_LIB1 COMPILE_DEFINITIONS "STATIC_LIB1_INTERNAL")
+xmake_add_to_list_property(STATIC_LIB1 COMPILE_DEFINITIONS "STATIC_LIB1_INTERNAL")
 
 # Exportations
 xmake_export_include_paths(STATIC_LIB1 "${XMAKE_TEST_STATIC_LIB1_SOURCE_DIR}")

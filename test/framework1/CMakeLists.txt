@@ -17,7 +17,7 @@ else()
     xmake_create_dynamic_library(FRAMEWORK1 framework1 1.0.0 1.0.0 ${SRCS})
 endif()
 
-xmake_add_to_property(FRAMEWORK1 COMPILE_DEFINITIONS "FRAMEWORK1_INTERNAL")
+xmake_add_to_list_property(FRAMEWORK1 COMPILE_DEFINITIONS "FRAMEWORK1_INTERNAL")
 
 # Link used libraries
 xmake_project_link(FRAMEWORK1 DYNAMIC_LIB2)

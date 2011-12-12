@@ -41,10 +41,20 @@ function(xmake_set VARIABLE VALUE)
 endfunction()
 
 
-# Append a value to the current value of a variable
-function(xmake_append VARIABLE VALUE)
+# Append a value to the current value of a list variable (values separated by ;)
+function(xmake_list_append VARIABLE VALUE)
     if (${VARIABLE})
         set(${VARIABLE} "${${VARIABLE}};${VALUE}" CACHE INTERNAL "" FORCE)
+    else()
+        set(${VARIABLE} "${VALUE}" CACHE INTERNAL "" FORCE)
+    endif()
+endfunction()
+
+
+# Append a value to the current value of a variable (values separated by a space)
+function(xmake_append VARIABLE VALUE)
+    if (${VARIABLE})
+        set(${VARIABLE} "${${VARIABLE}} ${VALUE}" CACHE INTERNAL "" FORCE)
     else()
         set(${VARIABLE} "${VALUE}" CACHE INTERNAL "" FORCE)
     endif()
@@ -60,12 +70,24 @@ function(xmake_add_subdirectory FOLDER_NAME)
 endfunction()
 
 
-# Add a value to a property of a XMake project
-function(xmake_add_to_property PROJECT PROPERTY_NAME VALUE)
+# Add a value to a list property of a XMake project (values separated by ;)
+function(xmake_add_to_list_property PROJECT PROPERTY_NAME VALUE)
     get_target_property(OLD_VALUE ${XMAKE_${PROJECT}_TARGET} ${PROPERTY_NAME})
 
     if (NOT OLD_VALUE STREQUAL "OLD_VALUE-NOTFOUND")
         set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${OLD_VALUE};${VALUE}")
+    else()
+        set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${VALUE}")
+    endif()
+endfunction()
+
+
+# Add a value to a property of a XMake project (values separated by a space)
+function(xmake_add_to_property PROJECT PROPERTY_NAME VALUE)
+    get_target_property(OLD_VALUE ${XMAKE_${PROJECT}_TARGET} ${PROPERTY_NAME})
+
+    if (NOT OLD_VALUE STREQUAL "OLD_VALUE-NOTFOUND")
+        set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${OLD_VALUE} ${VALUE}")
     else()
         set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES ${PROPERTY_NAME} "${VALUE}")
     endif()
@@ -372,20 +394,11 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
         endforeach()
 
         if (XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS)
-            get_target_property(LINK_FLAGS ${XMAKE_${PROJECT}_TARGET} LINK_FLAGS)
-            
-            if (NOT LINK_FLAGS STREQUAL "LINK_FLAGS-NOTFOUND")
-                set(LINK_FLAGS "${LINK_FLAGS} ${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
-            else()
-                set(LINK_FLAGS "${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
-            endif()
-
-            set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES LINK_FLAGS "${LINK_FLAGS}")
-            message(STATUS "${LINK_FLAGS}")
+            xmake_add_to_property(${PROJECT} LINK_FLAGS "${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
         endif()
 
         if (XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS)
-            xmake_add_to_property(${PROJECT} COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_add_to_list_property(${PROJECT} COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
         endif()
 
         if (XMAKE_${PROJECT_TO_LINK}_FRAMEWORK)
@@ -395,17 +408,17 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
 
         if (XMAKE_${PROJECT}_STATIC_LIBRARY)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
-            xmake_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
+            xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
             xmake_append(XMAKE_${PROJECT}_LINK_FLAGS "${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
-            xmake_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_list_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
         elseif (XMAKE_${PROJECT}_DYNAMIC_LIBRARY)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
-            xmake_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
-            xmake_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
+            xmake_list_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
         elseif (XMAKE_${PROJECT}_FRAMEWORK)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
-            xmake_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
-            xmake_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
+            xmake_list_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
         endif()
     endforeach()
 endfunction()
@@ -415,7 +428,7 @@ endfunction()
 # Global XMake settings
 #-----------------------------------------------------------------------------------------
 
-xmake_set(XMAKE_VERSION "2.0.1")
+xmake_set(XMAKE_VERSION "2.1")
 
 if (NOT DEFINED XMAKE_BINARY_DIR)
     xmake_set(XMAKE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
