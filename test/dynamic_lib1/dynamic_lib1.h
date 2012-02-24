@@ -12,9 +12,20 @@
 #endif
 
 
+#if defined( __WIN32__ ) || defined( _WIN32 )
+    #ifdef DYNAMIC_LIB1_IMPORT
+        #define DYNAMIC_LIB1_SYMBOL __declspec(dllimport)
+    #else
+        #define DYNAMIC_LIB1_SYMBOL __declspec(dllexport)
+    #endif
+#else
+    #define DYNAMIC_LIB1_SYMBOL
+#endif
+
+
 namespace dynamic_lib1
 {
-    void test();
+    void DYNAMIC_LIB1_SYMBOL test();
 }
 
 #endif
