@@ -480,17 +480,18 @@ endif()
 # Global CMake settings
 #-----------------------------------------------------------------------------------------
 
+# By default: compile in Release mode
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None (CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
-if (APPLE AND NOT XMAKE_OSX_ARCHITECTURES)
-    set(XMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING "" FORCE)
-endif()
-
+# On MacOS X, by default compile both in 32- and 64-bits
 if (APPLE)
-    if ("${CMAKE_OSX_ARCHITECTURES}" STREQUAL "${XMAKE_OSX_ARCHITECTURES}")
-    else()
+    if (NOT XMAKE_OSX_ARCHITECTURES)
+        set(XMAKE_OSX_ARCHITECTURES "i386;x86_64" CACHE STRING "" FORCE)
+    endif()
+
+    if (NOT "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "${XMAKE_OSX_ARCHITECTURES}")
         set(CMAKE_OSX_ARCHITECTURES "${XMAKE_OSX_ARCHITECTURES}" CACHE INTERNAL "" FORCE)
         set(CMAKE_OSX_ARCHITECTURES_DEFAULT "ppc" CACHE INTERNAL "" FORCE)
     endif()
