@@ -461,7 +461,7 @@ endfunction()
 # Global XMake settings
 #-----------------------------------------------------------------------------------------
 
-xmake_set(XMAKE_VERSION "2.1")
+xmake_set(XMAKE_VERSION "2.2")
 
 if (NOT DEFINED XMAKE_BINARY_DIR)
     xmake_set(XMAKE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
