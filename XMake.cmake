@@ -7,19 +7,19 @@
 #
 #
 # XMake is made available under the MIT License.
-# 
+#
 # Copyright (c) 2009-2012 Philip Abbet
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,6 +43,10 @@ endfunction()
 
 # Append a value to the current value of a list variable (values separated by ;)
 function(xmake_list_append VARIABLE VALUE)
+    if (NOT VALUE)
+        return()
+    endif()
+
     if (${VARIABLE})
         set(${VARIABLE} "${${VARIABLE}};${VALUE}" CACHE INTERNAL "" FORCE)
     else()
@@ -53,6 +57,10 @@ endfunction()
 
 # Append a value to the current value of a variable (values separated by a space)
 function(xmake_append VARIABLE VALUE)
+    if (NOT VALUE)
+        return()
+    endif()
+
     if (${VARIABLE})
         set(${VARIABLE} "${${VARIABLE}} ${VALUE}" CACHE INTERNAL "" FORCE)
     else()
@@ -72,6 +80,10 @@ endfunction()
 
 # Add a value to a list property of a XMake project (values separated by ;)
 function(xmake_add_to_list_property PROJECT PROPERTY_NAME VALUE)
+    if (NOT VALUE)
+        return()
+    endif()
+
     get_target_property(OLD_VALUE ${XMAKE_${PROJECT}_TARGET} ${PROPERTY_NAME})
 
     if (NOT OLD_VALUE STREQUAL "OLD_VALUE-NOTFOUND")
@@ -84,6 +96,10 @@ endfunction()
 
 # Add a value to a property of a XMake project (values separated by a space)
 function(xmake_add_to_property PROJECT PROPERTY_NAME VALUE)
+    if (NOT VALUE)
+        return()
+    endif()
+
     get_target_property(OLD_VALUE ${XMAKE_${PROJECT}_TARGET} ${PROPERTY_NAME})
 
     if (NOT OLD_VALUE STREQUAL "OLD_VALUE-NOTFOUND")
@@ -94,55 +110,75 @@ function(xmake_add_to_property PROJECT PROPERTY_NAME VALUE)
 endfunction()
 
 
+# Append a value to the current value of a variable (values separated by a space)
+function(xmake_disable_vs_warning PROJECT WARNING EXPORTED)
+    if (${XMAKE_${PROJECT}_FRAMEWORK} OR ${XMAKE_${PROJECT}_EXECUTABLE})
+        return()
+    endif()
+
+    if (WIN32)
+        xmake_add_to_property(${PROJECT} COMPILE_FLAGS "/wd${WARNING}")
+    endif()
+
+    if (EXPORTED)
+        xmake_append(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS ${WARNING})
+    endif()
+endfunction()
+
+
 # Display all the XMake settings of a project
 function(xmake_display PROJECT)
-    
+
     set(TEXT "\n--------------------------------------------------------------------------------\n")
     set(TEXT "${TEXT}XMake settings for '${PROJECT}':\n")
 
     if (XMAKE_${PROJECT}_TARGET)
-        set(TEXT "${TEXT}  Target:              ${XMAKE_${PROJECT}_TARGET}\n")
+        set(TEXT "${TEXT}  Target:               ${XMAKE_${PROJECT}_TARGET}\n")
     endif()
 
     if (XMAKE_${PROJECT}_FRAMEWORK)
         get_target_property(OUTPUT_DIRECTORY ${XMAKE_${PROJECT}_TARGET} RUNTIME_OUTPUT_DIRECTORY)
-        set(TEXT "${TEXT}  Framework path:      ${OUTPUT_DIRECTORY}\n")
+        set(TEXT "${TEXT}  Framework path:       ${OUTPUT_DIRECTORY}\n")
     endif()
 
     if (XMAKE_${PROJECT}_INCLUDE_PATHS)
-        set(TEXT "${TEXT}  Include paths:       ${XMAKE_${PROJECT}_INCLUDE_PATHS}\n")
+        set(TEXT "${TEXT}  Include paths:        ${XMAKE_${PROJECT}_INCLUDE_PATHS}\n")
     endif()
 
     if (XMAKE_${PROJECT}_LINK_PATHS)
-        set(TEXT "${TEXT}  Linking paths:       ${XMAKE_${PROJECT}_LINK_PATHS}\n")
+        set(TEXT "${TEXT}  Linking paths:        ${XMAKE_${PROJECT}_LINK_PATHS}\n")
     endif()
 
     if (XMAKE_${PROJECT}_COMPILE_DEFINITIONS)
-        set(TEXT "${TEXT}  Compile definitions: ${XMAKE_${PROJECT}_COMPILE_DEFINITIONS}\n")
+        set(TEXT "${TEXT}  Compile definitions:  ${XMAKE_${PROJECT}_COMPILE_DEFINITIONS}\n")
     endif()
-    
+
     if (XMAKE_${PROJECT}_LINK_FLAGS)
-        set(TEXT "${TEXT}  Linking flags:       ${XMAKE_${PROJECT}_LINK_FLAGS}\n")
+        set(TEXT "${TEXT}  Linking flags:        ${XMAKE_${PROJECT}_LINK_FLAGS}\n")
     endif()
 
     if (XMAKE_${PROJECT}_LINK_TARGETS)
-        set(TEXT "${TEXT}  Link targets:        ${XMAKE_${PROJECT}_LINK_TARGETS}\n")
+        set(TEXT "${TEXT}  Link targets:         ${XMAKE_${PROJECT}_LINK_TARGETS}\n")
+    endif()
+
+    if (XMAKE_${PROJECT}_DISABLED_VS_WARNINGS)
+        set(TEXT "${TEXT}  Disabled VS warnings: ${XMAKE_${PROJECT}_DISABLED_VS_WARNINGS}\n")
     endif()
 
     if (XMAKE_${PROJECT}_EXECUTABLE)
-        set(TEXT "${TEXT}  Type:                EXECUTABLE\n")
+        set(TEXT "${TEXT}  Type:                 EXECUTABLE\n")
     endif()
 
     if (XMAKE_${PROJECT}_STATIC_LIBRARY)
-        set(TEXT "${TEXT}  Type:                STATIC LIBRARY\n")
+        set(TEXT "${TEXT}  Type:                 STATIC LIBRARY\n")
     endif()
 
     if (XMAKE_${PROJECT}_DYNAMIC_LIBRARY)
-        set(TEXT "${TEXT}  Type:                DYNAMIC LIBRARY\n")
+        set(TEXT "${TEXT}  Type:                 DYNAMIC LIBRARY\n")
     endif()
 
     if (XMAKE_${PROJECT}_FRAMEWORK)
-        set(TEXT "${TEXT}  Type:                FRAMEWORK\n")
+        set(TEXT "${TEXT}  Type:                 FRAMEWORK\n")
     endif()
 
     set(TEXT "${TEXT}--------------------------------------------------------------------------------\n")
@@ -160,11 +196,11 @@ endfunction()
 function(xmake_create_executable PROJECT EXECUTABLE_NAME SOURCE_FILE1)
 
     # Project settings
-    xmake_set(XMAKE_${PROJECT}_TARGET             "${EXECUTABLE_NAME}")
-    xmake_set(XMAKE_${PROJECT}_EXECUTABLE          YES)
-    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY      NO)
-    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY     NO)
-    xmake_set(XMAKE_${PROJECT}_FRAMEWORK           NO)
+    xmake_set(XMAKE_${PROJECT}_TARGET               "${EXECUTABLE_NAME}")
+    xmake_set(XMAKE_${PROJECT}_EXECUTABLE           YES)
+    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY       NO)
+    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY      NO)
+    xmake_set(XMAKE_${PROJECT}_FRAMEWORK            NO)
 
     # Create the list of source files
     set(SOURCE_FILES ${SOURCE_FILE1})
@@ -188,16 +224,17 @@ endfunction()
 function(xmake_create_static_library PROJECT LIBRARY_NAME SOURCE_FILE1)
 
     # Project settings
-    xmake_set(XMAKE_${PROJECT}_TARGET             "${LIBRARY_NAME}")
-    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS       "")
-    xmake_set(XMAKE_${PROJECT}_LINK_PATHS          "")
-    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
-    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS          "")
-    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS        "${LIBRARY_NAME}")
-    xmake_set(XMAKE_${PROJECT}_EXECUTABLE          NO)
-    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY      YES)
-    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY     NO)
-    xmake_set(XMAKE_${PROJECT}_FRAMEWORK           NO)
+    xmake_set(XMAKE_${PROJECT}_TARGET                        "${LIBRARY_NAME}")
+    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS                 "")
+    xmake_set(XMAKE_${PROJECT}_LINK_PATHS                    "")
+    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS           "")
+    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS                    "")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS                  "${LIBRARY_NAME}")
+    xmake_set(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS          "")
+    xmake_set(XMAKE_${PROJECT}_EXECUTABLE                    NO)
+    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY                YES)
+    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY               NO)
+    xmake_set(XMAKE_${PROJECT}_FRAMEWORK                     NO)
 
     # Create the list of source files
     set(SOURCE_FILES ${SOURCE_FILE1})
@@ -218,16 +255,17 @@ endfunction()
 function(xmake_create_dynamic_library PROJECT LIBRARY_NAME VERSION API_VERSION SOURCE_FILE1)
 
     # Project settings
-    xmake_set(XMAKE_${PROJECT}_TARGET             "${LIBRARY_NAME}")
-    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS       "")
-    xmake_set(XMAKE_${PROJECT}_LINK_PATHS          "")
-    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
-    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS          "")
-    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS        "${LIBRARY_NAME}")
-    xmake_set(XMAKE_${PROJECT}_EXECUTABLE          NO)
-    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY      NO)
-    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY     YES)
-    xmake_set(XMAKE_${PROJECT}_FRAMEWORK           NO)
+    xmake_set(XMAKE_${PROJECT}_TARGET                        "${LIBRARY_NAME}")
+    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS                 "")
+    xmake_set(XMAKE_${PROJECT}_LINK_PATHS                    "")
+    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS           "")
+    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS                    "")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS                  "${LIBRARY_NAME}")
+    xmake_set(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS          "")
+    xmake_set(XMAKE_${PROJECT}_EXECUTABLE                    NO)
+    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY                NO)
+    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY               YES)
+    xmake_set(XMAKE_${PROJECT}_FRAMEWORK                     NO)
 
     # Create the list of source files
     set(SOURCE_FILES ${SOURCE_FILE1})
@@ -253,16 +291,16 @@ endfunction()
 
 # Declare a new framework (MacOS only)
 function(xmake_create_framework PROJECT FRAMEWORK_NAME VERSION API_VERSION SOURCE_FILE1)
-    xmake_set(XMAKE_${PROJECT}_TARGET              "${FRAMEWORK_NAME}")
-    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS       "")
-    xmake_set(XMAKE_${PROJECT}_LINK_PATHS          "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "")
-    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS          "-F${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -framework ${FRAMEWORK_NAME}")
-    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS        "")
-    xmake_set(XMAKE_${PROJECT}_EXECUTABLE          NO)
-    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY      NO)
-    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY     NO)
-    xmake_set(XMAKE_${PROJECT}_FRAMEWORK           YES)
+    xmake_set(XMAKE_${PROJECT}_TARGET               "${FRAMEWORK_NAME}")
+    xmake_set(XMAKE_${PROJECT}_INCLUDE_PATHS        "")
+    xmake_set(XMAKE_${PROJECT}_LINK_PATHS           "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+    xmake_set(XMAKE_${PROJECT}_COMPILE_DEFINITIONS  "")
+    xmake_set(XMAKE_${PROJECT}_LINK_FLAGS           "-F${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -framework ${FRAMEWORK_NAME}")
+    xmake_set(XMAKE_${PROJECT}_LINK_TARGETS         "")
+    xmake_set(XMAKE_${PROJECT}_EXECUTABLE           NO)
+    xmake_set(XMAKE_${PROJECT}_STATIC_LIBRARY       NO)
+    xmake_set(XMAKE_${PROJECT}_DYNAMIC_LIBRARY      NO)
+    xmake_set(XMAKE_${PROJECT}_FRAMEWORK            YES)
 
     # Create the list of source files
     set(SOURCE_FILES ${SOURCE_FILE1})
@@ -322,7 +360,7 @@ function(xmake_export_compile_definitions PROJECT DEFINITION1)
 
     set(DEFINITIONS ${XMAKE_${PROJECT}_COMPILE_DEFINITIONS})
     list(APPEND DEFINITIONS "${DEFINITION1}")
-    
+
     foreach(CURRENT_DEFINITION ${ARGN})
         list(APPEND DEFINITIONS "${CURRENT_DEFINITION}")
     endforeach()
@@ -372,11 +410,11 @@ endfunction()
 function(xmake_project_link PROJECT PROJECT_TO_LINK1)
 
     set(PROJECTS_TO_LINK ${PROJECT_TO_LINK1})
-    
+
     foreach(PROJECT_TO_LINK ${ARGN})
         list(APPEND PROJECTS_TO_LINK ${PROJECT_TO_LINK})
     endforeach()
-    
+
     foreach(PROJECT_TO_LINK ${PROJECTS_TO_LINK})
         set(NEW_TARGETS ${XMAKE_${PROJECT}_LINK_TARGETS})
 
@@ -406,15 +444,23 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
             set_target_properties(${XMAKE_${PROJECT}_TARGET} PROPERTIES COMPILE_FLAGS "-F${OUTPUT_DIRECTORY}")
         endif()
 
+        if (WIN32)
+            foreach (WARNING "${XMAKE_${PROJECT_TO_LINK}_DISABLED_VS_WARNINGS}")
+                xmake_add_to_property(${PROJECT} COMPILE_FLAGS "/wd${WARNING}")
+            endforeach()
+        endif()
+
         if (XMAKE_${PROJECT}_STATIC_LIBRARY)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
             xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
             xmake_append(XMAKE_${PROJECT}_LINK_FLAGS "${XMAKE_${PROJECT_TO_LINK}_LINK_FLAGS}")
             xmake_list_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_append(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS "${XMAKE_${PROJECT_TO_LINK}_DISABLED_VS_WARNINGS}")
         elseif (XMAKE_${PROJECT}_DYNAMIC_LIBRARY)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
             xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
             xmake_list_append(XMAKE_${PROJECT}_COMPILE_DEFINITIONS "${XMAKE_${PROJECT_TO_LINK}_COMPILE_DEFINITIONS}")
+            xmake_append(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS "${XMAKE_${PROJECT_TO_LINK}_DISABLED_VS_WARNINGS}")
         elseif (XMAKE_${PROJECT}_FRAMEWORK)
             xmake_set(XMAKE_${PROJECT}_LINK_TARGETS "${NEW_TARGETS}")
             xmake_list_append(XMAKE_${PROJECT}_INCLUDE_PATHS "${XMAKE_${PROJECT_TO_LINK}_INCLUDE_PATHS}")
