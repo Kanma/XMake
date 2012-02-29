@@ -122,7 +122,7 @@ endfunction()
 
 # Append a value to the current value of a variable (values separated by a space)
 function(xmake_disable_vs_warning PROJECT WARNING EXPORTED)
-    if (${XMAKE_${PROJECT}_FRAMEWORK} OR ${XMAKE_${PROJECT}_EXECUTABLE})
+    if (XMAKE_${PROJECT}_FRAMEWORK)
         return()
     endif()
 
@@ -130,7 +130,7 @@ function(xmake_disable_vs_warning PROJECT WARNING EXPORTED)
         xmake_add_to_property(${PROJECT} COMPILE_FLAGS "/wd${WARNING}")
     endif()
 
-    if (EXPORTED)
+    if (EXPORTED AND NOT XMAKE_${PROJECT}_EXECUTABLE)
         xmake_list_append(XMAKE_${PROJECT}_DISABLED_VS_WARNINGS ${WARNING})
     endif()
 endfunction()
