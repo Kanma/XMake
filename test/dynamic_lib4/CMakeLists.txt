@@ -11,6 +11,9 @@ set(SRCS dynamic_lib4.cpp)
 xmake_create_dynamic_library(DYNAMIC_LIB4 dynamic_lib4 1.0.0 1.0.0 ${SRCS})
 xmake_add_to_list_property(DYNAMIC_LIB4 COMPILE_DEFINITIONS "DYNAMIC_LIB4_INTERNAL")
 
+xmake_disable_vs_warning(DYNAMIC_LIB4 4306 NO)
+xmake_disable_vs_warning(DYNAMIC_LIB4 4662 YES)
+
 # Link used libraries
 xmake_project_link(DYNAMIC_LIB4 DYNAMIC_LIB1)
 xmake_project_link(DYNAMIC_LIB4 DYNAMIC_LIB2)
