@@ -457,6 +457,21 @@ function(xmake_project_link PROJECT PROJECT_TO_LINK1)
 endfunction()
 
 
+# Link a XMake project with one or more libraries
+function(xmake_link_libraries PROJECT LIBRARY_TO_LINK1)
+
+    set(LIBRARIES_TO_LINK ${LIBRARY_TO_LINK1})
+
+    foreach(LIBRARY_TO_LINK ${ARGN})
+        list(APPEND LIBRARIES_TO_LINK ${LIBRARY_TO_LINK})
+    endforeach()
+
+    foreach(LIBRARY_TO_LINK ${LIBRARIES_TO_LINK})
+        target_link_libraries(${XMAKE_${PROJECT}_TARGET} ${LIBRARY_TO_LINK})
+    endforeach()
+endfunction()
+
+
 #-----------------------------------------------------------------------------------------
 # Global XMake settings
 #-----------------------------------------------------------------------------------------
